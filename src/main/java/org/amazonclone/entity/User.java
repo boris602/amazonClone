@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import jakarta.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
@@ -21,9 +21,11 @@ public class User {
     private Long id;
 
     @Column(name = "user_name", nullable = false)
+    @Size(min = 5, max = 20)
     private String userName;
 
     @Column(nullable = false)
+    @Size(min = 5, max = 30)
     private String password;
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

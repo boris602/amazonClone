@@ -1,0 +1,31 @@
+.header-link {
+  display: inline-block;
+  padding: 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.header-link:hover {
+  border: 1px solid white;
+}
+
+
+.link-container{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right:15px
+}
+
+.text-style{  
+  color:white;
+  font-size: 15px;
+  font-weight: 700;
+}
+.user-text{
+  color:white;
+  font-size: 15px;
+  font-weight: 700;
+}

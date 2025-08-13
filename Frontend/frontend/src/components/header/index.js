@@ -1,15 +1,13 @@
 import headerCss from './style.css?inline';
+import './auth-link/index.js';
+
 
 class MyHeader extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-
-    this.userName = localStorage.getItem('userName') || 'Login';
     this.cartQuantity = parseInt(localStorage.getItem('cartQuantity')) || 0;
-    this.loginLink = this.userName === 'Login' ? '/createAccPage/' : '/addItemPage';
-
-    this.render();
+    this.render(); 
   }
 
   render() {
@@ -28,9 +26,7 @@ class MyHeader extends HTMLElement {
           </button>
         </div>
         <div class="amazon-right-section">
-          <a class="header-link login-link" href="${this.loginLink}">
-            <span class="login-text">${this.userName}</span>
-          </a>
+             <auth-link></auth-link>
           <a class="orders-link header-link" href="/amazon.html">
             <span class="returns-text">Returns</span>
             <span class="orders-text">& Orders</span>

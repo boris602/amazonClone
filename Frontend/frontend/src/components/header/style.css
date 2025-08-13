@@ -121,19 +121,6 @@
   font-weight: 700;
 }
 
-.login-link{
-  display:flex;
-  justify-content:bottom;
-  margin-right:15px
-}
-
-.login-text{
-  color:white;
-  font-size: 15px;
-  font-weight: 700;
-  margin-top: 20px
-}
-
 
 .cart-quantity {
   color: rgb(240, 136, 4);

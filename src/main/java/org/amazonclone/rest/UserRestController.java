@@ -14,7 +14,7 @@ public interface UserRestController {
 
     public User getUser (Long userId);
 
-    public ResponseEntity<User> addUser(User theUser);
+    public ResponseEntity<Map<String, String>> addUser(User theUser);
 
     public User updateUser(User theUser);
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.amazonclone.entity.PurchaseHistory;
 import org.amazonclone.entity.User;
 import org.amazonclone.rest.UserRestController;
 import org.amazonclone.service.UserService;
@@ -51,28 +50,43 @@ public class UserRestControllerImpl implements UserRestController {
 
     @Override
     @PostMapping("/users")
-    public ResponseEntity<User> addUser(@RequestBody User incoming) {
-        System.out.println("Incoming: " + incoming);
-        System.out.println("Duplicate check for username: " + incoming.getUserName());
+    public ResponseEntity<Map<String, String>> addUser(@RequestBody User incoming) {
+        String userName = incoming.getUserName();
+        String password = incoming.getPassword();
 
-        if (incoming.getUserName() == null || incoming.getUserName().isBlank()
-                || incoming.getPassword() == null || incoming.getPassword().isBlank()) {
-            return ResponseEntity.badRequest().build();
+        // Validate username
+        if (userName == null || userName.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username is required"));
+        }
+        if (userName.contains(" ")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username cannot contain spaces"));
+        }
+        if (userName.length() < 5 || userName.length() > 20) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username must be 5-20 characters long"));
         }
 
-        User existing = userService.findByName(incoming.getUserName()); // this checks userName
-        if (existing != null) {
-            return ResponseEntity.status(409).build();
+        // Validate password
+        if (password == null || password.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
+        }
+        if (password.contains(" ")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password cannot contain spaces"));
+        }
+        if (password.length() < 5 || password.length() > 30) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password must be 5-30 characters long"));
         }
 
-        // ✅ Important: for a new row, the ID must be null
+        // Check if username exists
+        if (userService.findByName(userName) != null) {
+            return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
+        }
+
         incoming.setId(null);
-
         User saved = userService.save(incoming);
-        URI location = URI.create("/api/users/" + saved.getId());
-        return ResponseEntity.created(location).body(saved);
-    }
 
+        return ResponseEntity.created(URI.create("/api/users/" + saved.getId()))
+                .body(Map.of("message", "User created successfully"));
+    }
 
 
     @Override
