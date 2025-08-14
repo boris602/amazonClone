@@ -1,5 +1,6 @@
-import loginCss from './style.css?inline';
-
+// src/pages/CreateAccountPage/index.js
+import loginAccCss from './style.css?inline';
+import '../../components/header/index.js';
 
 class MyLogin extends HTMLElement {
   constructor() {
@@ -8,9 +9,67 @@ class MyLogin extends HTMLElement {
     this.render();
   }
 
-  render() {
+  connectedCallback() {
+    this.render();
+
+    const form = this.shadowRoot.querySelector('#createForm');
+    const msg  = this.shadowRoot.querySelector('#msg');
+    const btn  = this.shadowRoot.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();            // no page reload
+      this.show(msg, '', '');        // clear message
+      btn.disabled = true;
+
+      const username = this.shadowRoot.querySelector('#username').value;
+      const password = this.shadowRoot.querySelector('#password').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userName: username, password })
+        });
+
+        if (res.status === 200) {
+          const data = await res.json();
+          this.show(msg, 'Login Succesfull! Redirecting…', 'success');
+          localStorage.setItem('userName', username);
+          localStorage.setItem('userId', data.id);
+          setTimeout(() => { window.location.href = '/homepage/'; }, 800);
+          return;
+        }
+
+
+        // Parse JSON error once; otherwise show generic message
+        let errText = `Unexpected error (${res.status})`;
+        try {
+          const data = await res.json();
+          if (data && typeof data.error === 'string') {
+            errText = data.error; // e.g., "Username already exists"
+          }
+        } catch { /* keep default errText */ }
+
+        this.show(msg, errText, 'error');
+
+      } catch {
+        // Only when fetch itself fails (no HTTP response at all)
+        this.show(msg, 'Network error. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  show(el, text, kind) {
+    el.textContent = text || '';
+    el.className = kind ? `info ${kind}` : 'info';
+    el.style.display = text ? 'block' : 'none';
+  }
+
+   render() {
     this.shadowRoot.innerHTML = `
-      <style>${loginCss}</style>
+      <style>${loginAccCss}</style>
       <div class ="center-container">
          <div class="amazon-image-container">
         <a href="/homepage/">
@@ -19,14 +78,14 @@ class MyLogin extends HTMLElement {
          </div>
          <div class="login-container">
             <span class="login-text"> Login or create an account</span>
-            <form id="loginForm" onsubmit="handleSubmit(event)">
+            <form id="createForm">
                <label for="username">username:</label>
                <input type="text" id="username" name="username" required>
                <label for="password">password:</label>
                <input type="password" id="password" name="password" required>     
                <button type="submit">Login</button>
             </form>
-        <p id="error" class="error">Invalid username or password</p>
+          <p id="msg" class="info" style="display:none;"></p>
         <div class = new-account-box>
             <a href="/createAccPage/"> Create a new account</a>
         </div>
@@ -34,5 +93,4 @@ class MyLogin extends HTMLElement {
     </div>`
   }
 }
-
 customElements.define('my-login', MyLogin);

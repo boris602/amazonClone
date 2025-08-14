@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 @Data
@@ -47,6 +48,7 @@ public class UserRestControllerImpl implements UserRestController {
         if (user == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(user);
     }
+
 
     @Override
     @PostMapping("/users")
@@ -85,7 +87,10 @@ public class UserRestControllerImpl implements UserRestController {
         User saved = userService.save(incoming);
 
         return ResponseEntity.created(URI.create("/api/users/" + saved.getId()))
-                .body(Map.of("message", "User created successfully"));
+                .body(Map.of(
+                        "id", saved.getId().toString(),
+                        "message", "User created successfully"
+                ));
     }
 
 
@@ -108,30 +113,24 @@ public class UserRestControllerImpl implements UserRestController {
         if (patchPayload.containsKey("id")) {
             throw new RuntimeException("User-Id not allowed in request body - " + userId);
         }
-
         User patchedUser = apply(patchPayload, tempUser);
-
         return userService.save(patchedUser);
     }
 
-    private User apply(Map<String, Object> patchPayload, User tempUser) {
 
+    private User apply(Map<String, Object> patchPayload, User tempUser) {
         ObjectNode userNode = objectMapper.convertValue(tempUser, ObjectNode.class);
         ObjectNode patchNode = objectMapper.convertValue(patchPayload, ObjectNode.class);
         userNode.setAll(patchNode);
-
         return objectMapper.convertValue(userNode, User.class);
     }
 
     @DeleteMapping("/users/{userId}")
     public User deleteUser(@PathVariable Long userId) {
-
         User tempUser = userService.findById(userId);
-
         if (tempUser == null) {
             throw new RuntimeException("User-Id not found - " + userId);
         }
-
         userService.deleteById(userId);
 
         return tempUser;

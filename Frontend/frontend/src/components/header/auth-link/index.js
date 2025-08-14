@@ -7,30 +7,34 @@ class AuthLink extends HTMLElement
         super()
         this.attachShadow({ mode: 'open' });
         this.userName = localStorage.getItem('userName') || 'Login';
-        this.loginLink ='Login' ? '/loginPage/' : '/addItemPage/';
+        this.loginLink = this.userName === 'Login' ? '/loginPage/' : '/addItemPage/';
+
         this.render();
     }
-
-    render(){
-        this.shadowRoot.innerHTML = `
-            <div class = link-container>
-               <style>${userLinkStyle}</style>
-               <a class="header-link" href="${this.loginLink}">
-                   <span class="text-style">${this.userName}</span>
-               </a>
-            `
-        // add additional link in case if a user has logged into his account.
-        if (this.userName){
-            this.shadowRoot.innerHTML += 
-            `
-            <a class="header-link" href="/loginPage/">
-                <span class="text-style">Logout</span>
-            </a>
-            `
+    connectedCallback() {
+        // clear user and allow normal navigation to /loginPage/
+        this.shadowRoot.addEventListener('click', (e) => {
+        if (e.target.closest('#logout')) {
+            localStorage.removeItem('userName');
         }
+    });
+  }
 
-        // close the first div 
-        this.shadowRoot.innerHTML += `</div>`
-    }
+   render() {
+    this.shadowRoot.innerHTML = `
+      <style>${userLinkStyle}</style>
+      <div class="link-container">
+        <a class="header-link" href="${this.loginLink}">
+          <span class="text-style">${this.userName}</span>
+        </a>
+
+        ${this.userName !== 'Login' ? `
+          <a id="logout" class="header-link link-style" href="/loginPage/">
+            <span class="text-style">Logout</span>
+          </a>
+        ` : ``}
+      </div>
+    `;
+  }
 }
 customElements.define('auth-link', AuthLink);

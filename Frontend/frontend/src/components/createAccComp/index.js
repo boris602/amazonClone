@@ -31,8 +31,11 @@ class CreateAccComp extends HTMLElement {
         });
 
         if (res.status === 201) {
+          const data = await res.json();
           this.show(msg, 'Account created! Redirecting…', 'success');
           localStorage.setItem('userName', username);
+          localStorage.setItem('userId', data.id);
+
           setTimeout(() => { window.location.href = '/homepage/'; }, 800);
           return;
         }
@@ -75,7 +78,6 @@ class CreateAccComp extends HTMLElement {
 
         <div class="login-container">
           <span class="login-text">Create a new account</span>
-
           <form id="createForm">
             <label for="username">username:</label>
             <input type="text" id="username" name="username" required />
@@ -92,5 +94,4 @@ class CreateAccComp extends HTMLElement {
     `;
   }
 }
-
 customElements.define('my-create-acc', CreateAccComp);

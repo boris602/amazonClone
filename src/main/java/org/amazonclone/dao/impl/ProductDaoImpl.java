@@ -3,7 +3,6 @@ package org.amazonclone.dao.impl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import lombok.AllArgsConstructor;
 import org.amazonclone.dao.ProductDao;
 import org.amazonclone.entity.Product;
 import org.springframework.stereotype.Repository;
