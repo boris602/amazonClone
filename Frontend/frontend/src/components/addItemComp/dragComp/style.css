@@ -1,0 +1,52 @@
+.drop-container {
+    width: 200px;
+    height: 100px;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    margin-bottom:10px;
+    margin-top:5px;
+
+}
+
+.draggable-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    user-select: none;
+    cursor: grab;
+}
+
+.draggable-img.dragging {
+     opacity: 0.6; cursor: grabbing;
+}
+
+
+.drop-container.dragover {
+    border-color: #2196f3;
+    background: #e3f2fd;
+}
+
+.drop-container img {
+    width: 200px;
+    height: 100px;
+    object-fit: scale-down;
+}
+
+.upload-text {
+    text-align: center;
+    color: #666;
+}
+
+#fileInput{
+    display:none;
+}
+
+.file-container{
+    align-items:center;
+    display:flex;
+    align-items:center;
+    flex-direction: column;
+}

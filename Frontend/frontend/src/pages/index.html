@@ -1,19 +1,141 @@
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drag and Drop Image Upload</title>
-    <link rel="stylesheet" href="../style/drag_style.css">
+    <style>
+        .drop-container {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 20px;
+        }
+        .drop-container.dragover {
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+        .drop-container img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .upload-text {
+            text-align: center;
+            color: #666;
+        }
+        input[type="file"] {
+            margin: 20px;
+        }
+        #fileInput {
+            display: none; /* Hide the file input */
+        }
+    </style>
 </head>
 <body>
-    <div id="dropZone" class="drop-zone">
-        <p>Drag & Drop an image here or click to select</p>
-        <input type="file" id="fileInput" accept="image/*" hidden>
+    <input type="file" id="fileInput" accept="image/*">
+    <div class="drop-container" id="dropContainer">
+        <div class="upload-text">Drag & Drop or Click to Upload</div>
     </div>
-    <div id="imageContainer" class="image-container"></div>
-    <script src="../scripts/drag_script.js"></script>
+
+    <script>
+const dropContainer = document.getElementById('dropContainer');
+const fileInput = document.getElementById('fileInput');
+
+// Handle drag and drop events
+dropContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropContainer.classList.add('dragover');
+});
+
+dropContainer.addEventListener('dragleave', () => {
+    dropContainer.classList.remove('dragover');
+});
+
+dropContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropContainer.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]); // Process only the first file
+    }
+});
+
+// Allow clicking the container to trigger file input
+dropContainer.addEventListener('click', () => {
+    fileInput.click();
+});
+
+// Handle direct file input
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+        handleFile(fileInput.files[0]);
+    }
+});
+
+function handleFile(file) {
+    // Verify file is an image
+    if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        // Remove existing image if present
+        const existingImg = dropContainer.querySelector('img');
+        if (existingImg) {
+            existingImg.remove();
+        }
+
+        // Remove upload text if present
+        const uploadText = dropContainer.querySelector('.upload-text');
+        if (uploadText) {
+            uploadText.remove();
+        }
+
+        // Create new image
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+            // Create canvas to resize image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+
+            // Draw resized image
+            ctx.drawImage(img, 0, 0, 200, 200);
+
+            // Create new image element with resized image
+            resizedImg = new Image();
+            resizedImg.src = canvas.toDataURL('image/jpeg');
+            resizedImg.draggable = true; // Make the image draggable
+            resizedImg.classList.add('draggable-img'); // Add class for styling or identification
+            dropContainer.appendChild(resizedImg);
+
+            // Add dragstart event to track dragging
+            resizedImg.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', 'remove'); // Set data to identify removal
+            });
+
+            // Add dragend event to remove the image
+            resizedImg.addEventListener('dragend', () => {
+                resizedImg.remove(); // Remove the image
+                // Restore upload text
+                const newUploadText = document.createElement('div');
+                newUploadText.classList.add('upload-text');
+                newUploadText.textContent = 'Drag & Drop or Click to Upload';
+                dropContainer.appendChild(newUploadText);
+            });
+        };
+    };
+    reader.readAsDataURL(file);
+}
+    </script>
 </body>
 </html>

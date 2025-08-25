@@ -61,8 +61,8 @@ class CreateAccComp extends HTMLElement {
   }
 
   show(el, text, kind) {
-    el.textContent = text || '';
-    el.className = kind ? `info ${kind}` : 'info';
+    el.textContent = text;
+    el.className = kind;
     el.style.display = text ? 'block' : 'none';
   }
 
@@ -88,7 +88,7 @@ class CreateAccComp extends HTMLElement {
             <button type="submit">Create Account</button>
           </form>
 
-          <p id="msg" class="info" style="display:none;"></p>
+          <p id="msg"></p>
         </div>
       </div>
     `;
